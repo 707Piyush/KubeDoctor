@@ -1,0 +1,36 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaky-app
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leaky-app
+  template:
+    metadata:
+      labels:
+        app: leaky-app
+    spec:
+      containers:
+        - name: leaky-app
+          image: python:3.12-alpine
+          command: ["python", "-u", "-c"]
+          args:
+            - |
+              import time
+              memory = []
+              print("Leaky app started")
+              while True:
+                  memory.append(bytearray(1024 * 1024))
+                  print("Memory used approximately:", len(memory), "MB")
+                  time.sleep(2)
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

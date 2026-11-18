@@ -1,0 +1,39 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-hog
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memory-hog
+  template:
+    metadata:
+      labels:
+        app: memory-hog
+    spec:
+      containers:
+        - name: memory-hog
+          image: python:3.12-alpine
+          command: ["python", "-u", "-c"]
+          args:
+            - |
+              import time
+              memory = []
+              print("Memory-hog started")
+              while len(memory) < 150:
+                  memory.append(bytearray(1024 * 1024))
+                  print("Allocated MB:", len(memory))
+                  time.sleep(0.5)
+              print("Memory allocation complete")
+              while True:
+                  time.sleep(60)
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
